@@ -1,15 +1,7 @@
-# Use the official OpenJDK 21 image from the Docker Hub
 FROM openjdk:21-jdk-slim
-
-# Set the working directory
 WORKDIR /myapp
-
-# Copy the jar file into the container
-COPY target/SewStylesBackendApplication.jar app.jar
-
-# Expose the port on which the app will run
+COPY target/Sew_Style_Backend-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/myapp/app.jar"]
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
 
