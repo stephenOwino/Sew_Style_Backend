@@ -1,18 +1,48 @@
-name: Docker Image CI
+ame: Backend CI/CD
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+      - sew-ba
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Build with Maven
+        run: mvn clean install
+
+      - name: List files in target directory
+        run: ls -R target
+
+      - name: Build Docker image
+        run: docker build -t otizaaa/sewstyles-backend:latest .
+
+      - name: Push Docker image to Docker Hub
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: otizaaa/sewstyles-backend:latest
+
+      - name: Deploy to Render
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"service_id": "YOUR_SERVICE_ID"}' \
+            https://api.render.com/v1/services/YOUR_SERVICE_ID/deploy
