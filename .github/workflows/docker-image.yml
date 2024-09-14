@@ -22,38 +22,44 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          java-version: '21'  # Specify the Java version to use
-          distribution: 'temurin'  # Choose the JDK distribution (Temurin)
+          java-version: '21'
+          distribution: 'temurin'
 
       # Step 3: Build the application using Maven
       - name: Build with Maven
-        run: mvn clean install  # Clean and build the Maven project
+        run: mvn clean install
 
       # Step 4: List files in the target directory to verify the build output
       - name: List files in target directory
-        run: ls -R target  # List all files recursively in the 'target' directory
+        run: ls -R target
 
       # Step 5: Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}  # Docker Hub username from GitHub Secrets
-          password: ${{ secrets.DOCKER_PASSWORD }}  # Docker Hub password from GitHub Secrets
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       # Step 6: Build and push the Docker image to Docker Hub
       - name: Build and Push Docker image
         uses: docker/build-push-action@v3
         with:
-          context: .  # Build context is the current directory
-          push: true  # Push the built image to Docker Hub
-          tags: otizaaa/sewstyles-backend:latest  # Tag for the Docker image
+          context: .
+          push: true
+          tags: otizaaa/sewstyles-backend:latest
 
-      # Step 7: Docker Compose Up
+      # Step 7: Install Docker Compose
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep 'tag_name' | cut -d\" -f4)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+
+      # Step 8: Docker Compose Up
       - name: Docker Compose Up
         run: |
-          docker-compose -f docker-compose.yml up -d  # Start services defined in the docker-compose.yml file in detached mode
+          docker-compose -f docker-compose.yml up -d
 
-      # Step 8: Deploy the application to Render
+      # Step 9: Deploy the application to Render
       - name: Deploy to Render
         run: |
           curl -X POST \
@@ -63,6 +69,6 @@ jobs:
             https://api.render.com/v1/services/YOUR_SERVICE_ID/deploy
         # Replace 'YOUR_SERVICE_ID' with your actual Render service ID
 
-      # Step 9: Clean up Docker Compose
+      # Step 10: Clean up Docker Compose
       - name: Clean up Docker Compose
-        run: docker-compose -f docker-compose.yml down  # Stop and remove all services and networks
+        run: docker-compose -f docker-compose.yml down
