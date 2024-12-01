@@ -22,7 +22,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          java-version: '21'
+          java-version: '17'  # Change this to Java 17
           distribution: 'temurin'
 
       # Step 3: Build the application using Maven
@@ -40,7 +40,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Step 6: Build and push the Docker image to Docker Hub
+      # Step 6: Build and Push Docker image
       - name: Build and Push Docker image
         uses: docker/build-push-action@v3
         with:
@@ -72,3 +72,4 @@ jobs:
       # Step 10: Clean up Docker Compose
       - name: Clean up Docker Compose
         run: docker-compose -f docker-compose.yml down
+
