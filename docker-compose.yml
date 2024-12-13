@@ -1,42 +1,42 @@
-version: '3.8'
+        version: '3.8'
 
-services:
-  mysql:
-    image: mysql:latest
-    container_name: mysql_db
-    environment:
-      MYSQL_ROOT_PASSWORD: Steve@123
-      MYSQL_DATABASE: Sew_StyleData
-      MYSQL_USER: Steve
-      MYSQL_PASSWORD: Steve@123
-    ports:
-      - "3307:3306"  # Expose MySQL on port 3307 on your local machine, but use port 3306 in Docker
+    services:
+      mysql:
+        image: mysql:latest
+        container_name: mysql_db
+        environment:
+          MYSQL_ROOT_PASSWORD: Steve@123
+          MYSQL_DATABASE: Sew_StyleData
+          MYSQL_USER: Steve
+          MYSQL_PASSWORD: Steve@123
+        ports:
+          - "3308:3306"  # Expose MySQL on port 3308 on your local machine
+        volumes:
+          - mysql-data:/var/lib/mysql  # Persist data between container restarts
+        networks:
+          - sew_style_backend_network  # Corrected network name
+
+      springbootapp:
+        image: otizaaa/sewstyles-backend:latest  # Replace with your Docker image for the Spring Boot app
+        container_name: Sew_Style_Backend_app  # Corrected container name to match the application
+        ports:
+          - "8080:5000"  # Expose Spring Boot app on port 8080 on your local machine (5000 inside the container)
+        depends_on:
+          - mysql  # Ensure MySQL starts before the Spring Boot app
+        environment:
+          MYSQL_HOST: mysql
+          MYSQL_PORT: 3306
+          SPRING_DATASOURCE_URL: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/Sew_StyleData?createDatabaseIfNotExist=true
+          SPRING_DATASOURCE_USERNAME: Steve
+          SPRING_DATASOURCE_PASSWORD: Steve@123
+        networks:
+          - sew_style_backend_network  # Corrected network name
+
     volumes:
-      - mysql-data:/var/lib/mysql  # Persist data between container restarts
+      mysql-data:  # Ensure MySQL data persists across container restarts
+
     networks:
-      - sewstyle-network
-
-  springbootapp:
-    image: otizaaa/sewstyles-backend:latest  # Replace with your Docker image for the Spring Boot app
-    container_name: Sew-Styles-app
-    ports:
-      - "8080:5000"  # Expose Spring Boot app on port 8080 on your local machine (5000 inside the container)
-    depends_on:
-      - mysql  # Ensure MySQL starts before the Spring Boot app
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/Sew_StyleData?createDatabaseIfNotExist=true  # MySQL container's internal network address
-      SPRING_DATASOURCE_USERNAME: Steve
-      SPRING_DATASOURCE_PASSWORD: Steve@123
-      SPRING_JPA_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL8Dialect
-      SPRING_DATASOURCE_DRIVER-CLASS-NAME: com.mysql.cj.jdbc.Driver  # Explicitly define the MySQL driver class
-    networks:
-      - sewstyle-network
-
-volumes:
-  mysql-data:  # Ensure MySQL data persists across container restarts
-
-networks:
-  sewstyle-network:
-    driver: bridge
+      sew_style_backend_network: # Corrected network name to match the one used in the services section
+        driver: bridge
 
 

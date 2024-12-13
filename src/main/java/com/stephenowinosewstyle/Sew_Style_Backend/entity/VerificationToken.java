@@ -1,6 +1,5 @@
-package com.stephenowinosewstyle.Sew_Style_Backend.token;
+package com.stephenowinosewstyle.Sew_Style_Backend.entity;
 
-import com.stephenowinosewstyle.Sew_Style_Backend.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -74,9 +74,8 @@
 		<dependency>
 			<groupId>com.mysql</groupId>
 			<artifactId>mysql-connector-j</artifactId>
-			<version>9.1.0</version>
+			<scope>runtime</scope>
 		</dependency>
-
 
 		<!-- Spring Boot Test Dependencies -->
 		<dependency>
@@ -98,6 +97,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
+		<finalName>Sew_Style_Backend</finalName>
 	</build>
 
 </project>

@@ -5,7 +5,7 @@ import com.stephenowinosewstyle.Sew_Style_Backend.entity.User;
 import com.stephenowinosewstyle.Sew_Style_Backend.event.RegistrationCompleteEvent;
 import com.stephenowinosewstyle.Sew_Style_Backend.repository.VerificationTokenRepository;
 import com.stephenowinosewstyle.Sew_Style_Backend.service.UserService;
-import com.stephenowinosewstyle.Sew_Style_Backend.token.VerificationToken;
+import com.stephenowinosewstyle.Sew_Style_Backend.entity.VerificationToken;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
