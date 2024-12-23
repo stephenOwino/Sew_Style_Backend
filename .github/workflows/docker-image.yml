@@ -8,7 +8,6 @@ on:
   pull_request:
     branches:
       - main
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -35,7 +34,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # Cache Maven dependencies
       - name: Cache Maven dependencies
         uses: actions/cache@v2
         with:
@@ -46,9 +44,6 @@ jobs:
 
       - name: Build with Maven
         run: mvn clean install -X -Dmaven.wagon.http.connectionTimeout=60000 -Dmaven.wagon.http.readTimeout=60000
-
-      - name: List files in target directory
-        run: ls -R target
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3.1.0
@@ -71,17 +66,14 @@ jobs:
       - name: Set up environment variables
         run: echo "MYSQL_HOST=mysql" >> $GITHUB_ENV
 
-      - name: Docker Compose Up
-        run: |
-          docker-compose -f docker-compose.yml up -d
-
+      # Deploy to Render step: Ensure the service ID is set correctly
       - name: Deploy to Render
         run: |
           curl -X POST \
             -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
             -H "Content-Type: application/json" \
-            -d '{"service_id": "YOUR_SERVICE_ID"}' \
-            https://api.render.com/v1/services/YOUR_SERVICE_ID/deploy
+            -d '{"service_id": "your_actual_service_id"}' \
+            https://api.render.com/v1/services/your_actual_service_id/deploy
 
       - name: Clean up Docker Compose
         run: docker-compose -f docker-compose.yml down

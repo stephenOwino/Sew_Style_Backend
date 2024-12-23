@@ -10,7 +10,7 @@ services:
       MYSQL_USER: ${MYSQL_USER}  # Use environment variable for user
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}  # Use environment variable for password
     ports:
-      - "3306:3306"  # If you want to expose MySQL to the host machine during CI/CD, otherwise remove this
+      - "3308:3306"  # If you want to expose MySQL to the host machine during CI/CD, otherwise remove this
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
