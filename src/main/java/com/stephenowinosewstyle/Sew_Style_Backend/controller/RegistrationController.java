@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/register")
+@RequestMapping("/auth")
 public class RegistrationController {
 
         private final UserService userService;
         private final ApplicationEventPublisher publisher;
         private final VerificationTokenRepository tokenRepository;
 
-        @PostMapping
+        @PostMapping("/register")
         public String registerUser(@RequestBody RegistrationRequest registrationRequest, final HttpServletRequest request){
                 User user = userService.registerUser(registrationRequest);
                 publisher.publishEvent(new RegistrationCompleteEvent(user, applicationUrl(request)));
@@ -43,6 +43,6 @@ public class RegistrationController {
 
 
         public String applicationUrl(HttpServletRequest request) {
-                return "http://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath();
+                return "http://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath()+"/auth";
         }
 }

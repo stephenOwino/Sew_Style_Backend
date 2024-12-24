@@ -25,7 +25,7 @@ public class UserRegistrationSecurityConfig {
                 return http
                         .csrf(customizer -> customizer.disable())
                         .authorizeHttpRequests(request -> request
-                                .requestMatchers("register", "login")
+                                .requestMatchers("/auth/**")
                                 .permitAll()
                                 .anyRequest().authenticated())
                         // http.formLogin(Customizer.withDefaults());

@@ -1,47 +1,42 @@
-version: "3.8"
+version: '3.8'
 
 services:
-  mysql:
-    image: mysql:latest
+  # MySQL Database Service
+  mysql_db:
+    image: mysql:8.0
     container_name: mysql_db
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}  # Use environment variable for root password
-      MYSQL_DATABASE: Sew_StyleData
-      MYSQL_USER: ${MYSQL_USER}  # Use environment variable for user
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}  # Use environment variable for password
+      MYSQL_ROOT_PASSWORD: rootPassword123
+      MYSQL_DATABASE: sew_style_data
+      MYSQL_USER: user
+      MYSQL_PASSWORD: userPassword123
     ports:
-      - "3308:3306"  # If you want to expose MySQL to the host machine during CI/CD, otherwise remove this
+      - "4000:3306"  # Expose port 3306 to allow connection from MySQL Workbench
     volumes:
-      - mysql-data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql  # Persist MySQL data between container restarts
     networks:
-      - sew_styles_backend_network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "--host=localhost", "--user=root", "--password=${MYSQL_ROOT_PASSWORD}"]
-      interval: 30s
-      retries: 5
-      start_period: 10s
-      timeout: 10s
+      - mysql_network
 
-  springbootapp:
-    image: otizaaa/sewstyles-backend:latest
-    container_name: Sew_Style_Backend_app
-    ports:
-      - "8080:5000"  # Expose port 5000 of the Spring Boot app to 8080 on the host (optional)
+  # Spring Boot Application Service
+  sew_style_backend:
+    image: ameda/sew_style  # The image name you've built and pushed
+    container_name: sew_style_backend
     environment:
-      MYSQL_HOST: mysql  # Use the container name for MySQL
-      MYSQL_PORT: "3306"
-      SPRING_DATASOURCE_URL: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/Sew_StyleData?createDatabaseIfNotExist=true
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql_db:3306/sew_style_data  # Connect to MySQL service
+      SPRING_DATASOURCE_USERNAME: root  # Use the username from the MySQL service
+      SPRING_DATASOURCE_PASSWORD: rootPassword123  # Password for the non-root MySQL user
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update  # Automatically manage the schema (optional)
+    ports:
+      - "8080:8080"  # Expose port 8080 for accessing the Spring Boot app
     depends_on:
-      mysql:
-        condition: service_healthy  # Ensure Spring Boot starts only after MySQL is healthy
+      - mysql_db  # Ensure MySQL starts before the Spring Boot application
     networks:
-      - sew_styles_backend_network
+      - mysql_network
 
 volumes:
-  mysql-data:  # Persist MySQL data
+  mysql_data:
+    driver: local
 
 networks:
-  sew_styles_backend_network:
-    driver: bridge  # Use bridge for local communication between services
+  mysql_network:
+    driver: bridge

@@ -11,7 +11,7 @@
 	</parent>
 
 	<groupId>com.stephenowinosewstyle</groupId>
-	<artifactId>Sew_Style_Backend</artifactId>
+	<artifactId>sew_style</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Sew_Style_Backend</name>
 	<description>SewStyle is an innovative web application connecting clients with skilled tailors across Kenya. It provides a seamless user experience with an interactive map to locate nearby tailors, a comprehensive directory to browse and review services, and real-time chat functionality. Users can manage their clothing preferences and save liked items directly from the application.</description>
@@ -62,15 +62,16 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>io.github.cdimascio</groupId>-->
+<!--			<artifactId>dotenv-java</artifactId>-->
+<!--			<version>3.0.0</version>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
-
-		<!-- MySQL JDBC Driver -->
-
-		<!-- https://mvnrepository.com/artifact/com.mysql/mysql-connector-j -->
 		<dependency>
 			<groupId>com.mysql</groupId>
 			<artifactId>mysql-connector-j</artifactId>
@@ -95,9 +96,14 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<image>
+						<name>ameda/${project.artifactId}</name>
+					</image>
+				</configuration>
 			</plugin>
 		</plugins>
-		<finalName>Sew_Style_Backend</finalName>
+		<finalName>sew_style</finalName>
 	</build>
 
 </project>
