@@ -1,23 +1,28 @@
 package com.stephenowinosewstyle.Sew_Style_Backend.controller;
 
 
-import com.stephenowinosewstyle.Sew_Style_Backend.entity.User;
+import com.stephenowinosewstyle.Sew_Style_Backend.dto.UserDTO;
 import com.stephenowinosewstyle.Sew_Style_Backend.service.UserService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequiredArgsConstructor
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
-        private final UserService userService;
 
-        @GetMapping
-        public List<User> getUsers(){
-                return userService.getUsers();
+        @Autowired
+        private UserService userService;
+
+        @PostMapping
+        public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
+                UserDTO createdUser = userService.createUser(userDTO);
+                return ResponseEntity.ok(createdUser);
+        }
+
+        @GetMapping("/{id}")
+        public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
+                UserDTO user = userService.getUserById(id);
+                return ResponseEntity.ok(user);
         }
 }
