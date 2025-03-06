@@ -1,10 +1,13 @@
 package com.stephenowinosewstyle.Sew_Style_Backend.entity;
 
-
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "image")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,12 +18,17 @@ public class Image {
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
-        private String imageUrl; // URL or path to the image file
+        @Column(name = "image_url", nullable = false)
+        private String imageUrl;
 
-        private int likeCount; // Number of likes for this image
+        @Column(name = "like_count", nullable = false)
+        private int likeCount = 0;
+
+        @CreationTimestamp
+        @Column(name = "uploaded_at", updatable = false)
+        private LocalDateTime uploadedAt;
 
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "gallery_id", nullable = false)
-        private Gallery gallery; // Linking to the gallery
+        private Gallery gallery;
 }
-

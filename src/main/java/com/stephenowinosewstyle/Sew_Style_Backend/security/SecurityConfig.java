@@ -4,6 +4,7 @@ import com.stephenowinosewstyle.Sew_Style_Backend.jwt.JwtRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -32,7 +33,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 
         @Bean
         public PasswordEncoder passwordEncoder() {
-                return new BCryptPasswordEncoder(12); // Strength 12 is good for security/performance balance
+                return new BCryptPasswordEncoder(12);
         }
 
         @Bean
@@ -51,13 +52,15 @@ public class SecurityConfig implements WebMvcConfigurer {
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 return http
-                        .csrf(AbstractHttpConfigurer::disable) // Stateless API, CSRF not needed
+                        .csrf(AbstractHttpConfigurer::disable)
                         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                         .authorizeHttpRequests(auth -> auth
                                 .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                                .requestMatchers("/api/tailor/**").hasRole("TAILOR")
-                                .requestMatchers("/api/gallery/**").hasAnyRole("USER", "TAILOR", "ADMIN")
+                                .requestMatchers("/api/tailors/**").hasRole("TAILOR")
+                                .requestMatchers(HttpMethod.POST, "/api/galleries").hasRole("TAILOR") // Create gallery
+                                .requestMatchers(HttpMethod.POST, "/api/images").hasRole("TAILOR") // Upload image
+                                .requestMatchers("/api/galleries/**").hasAnyRole("USER", "TAILOR", "ADMIN") // Browse
                                 .anyRequest().authenticated()
                         )
                         .authenticationProvider(authenticationProvider())

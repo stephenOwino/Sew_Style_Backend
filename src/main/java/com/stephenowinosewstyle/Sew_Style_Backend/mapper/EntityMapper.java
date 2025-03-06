@@ -63,11 +63,11 @@ public class EntityMapper {
         // ===== IMAGE MAPPING =====
         public ImageDTO imageToImageDTO(Image image) {
                 if (image == null) return null;
-
                 ImageDTO dto = new ImageDTO();
                 dto.setId(image.getId());
-                dto.setImageUrl(image.getImageUrl());    // Correct field name
-                dto.setLikeCount(image.getLikeCount());  // Correct field name
+                dto.setImageUrl(image.getImageUrl());
+                dto.setLikeCount(image.getLikeCount());
+                dto.setUploadedAt(image.getUploadedAt()); // Ensure this is included
                 if (image.getGallery() != null) {
                         dto.setGalleryId(image.getGallery().getId());
                 }
@@ -76,12 +76,11 @@ public class EntityMapper {
 
         public Image imageDTOToImage(ImageDTO dto) {
                 if (dto == null) return null;
-
                 Image image = new Image();
                 image.setId(dto.getId());
-                image.setImageUrl(dto.getImageUrl());    // Correct field name
-                image.setLikeCount(dto.getLikeCount());  // Correct field name
-                // Gallery is usually set in service layer if needed
+                image.setImageUrl(dto.getImageUrl());
+                image.setLikeCount(dto.getLikeCount());
+                // Do NOT set uploadedAt here; let @CreationTimestamp handle it
                 return image;
         }
 
@@ -89,37 +88,29 @@ public class EntityMapper {
         // ===== GALLERY MAPPING =====
         public GalleryDTO galleryToGalleryDTO(Gallery gallery) {
                 if (gallery == null) return null;
-
                 GalleryDTO dto = new GalleryDTO();
                 dto.setId(gallery.getId());
                 dto.setTailorId(gallery.getTailor() != null ? gallery.getTailor().getId() : null);
-                dto.setTitle(gallery.getTitle());  // ✅ Use 'title' directly
-
+                dto.setTitle(gallery.getTitle());
+                dto.setDescription(gallery.getDescription());
+                dto.setCreatedAt(gallery.getCreatedAt());
                 if (gallery.getImages() != null) {
-                        dto.setImages(gallery.getImages().stream()
-                                .map(this::imageToImageDTO)
-                                .toList());
+                        dto.setImages(gallery.getImages().stream().map(this::imageToImageDTO).toList());
                 }
-
                 return dto;
         }
 
         public Gallery galleryDTOToGallery(GalleryDTO dto) {
                 if (dto == null) return null;
-
                 Gallery gallery = new Gallery();
                 gallery.setId(dto.getId());
-                gallery.setTitle(dto.getTitle());  // ✅ Use 'title' directly
-
+                gallery.setTitle(dto.getTitle());
+                gallery.setDescription(dto.getDescription());
                 if (dto.getImages() != null) {
-                        gallery.setImages(dto.getImages().stream()
-                                .map(this::imageDTOToImage)
-                                .toList());
+                        gallery.setImages(dto.getImages().stream().map(this::imageDTOToImage).toList());
                 }
-
                 return gallery;
         }
-
 
         // ===== FOLLOW MAPPING =====
         public FollowDTO followToFollowDTO(Follow follow) {
