@@ -1,35 +1,42 @@
 version: '3.8'
 
 services:
-  # MySQL Database Service
   mysql_db:
     image: mysql:8.0
     container_name: mysql_db
     environment:
       MYSQL_ROOT_PASSWORD: rootPassword123
       MYSQL_DATABASE: sew_style_data
-      MYSQL_USER: user
-      MYSQL_PASSWORD: userPassword123
+      MYSQL_USER: Steve
+      MYSQL_PASSWORD: Steve@123
     ports:
-      - "4000:3306"  # Expose port 3306 to allow connection from MySQL Workbench
+      - "4000:3306"
     volumes:
-      - mysql_data:/var/lib/mysql  # Persist MySQL data between container restarts
+      - mysql_data:/var/lib/mysql
     networks:
       - mysql_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # Spring Boot Application Service
   sew_style_backend:
-    image: ameda/sew_style  # The image name you've built and pushed
+    image: otizaaa/sew_style # Default to your pushed image
     container_name: sew_style_backend
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql_db:3306/sew_style_data  # Connect to MySQL service
-      SPRING_DATASOURCE_USERNAME: root  # Use the username from the MySQL service
-      SPRING_DATASOURCE_PASSWORD: rootPassword123  # Password for the non-root MySQL user
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update  # Automatically manage the schema (optional)
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql_db:3306/sew_style_data?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: Steve
+      SPRING_DATASOURCE_PASSWORD: Steve@123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL8Dialect
+      JWT_SECRET: your-very-long-secret-key-here  # Change later if needed
+      JWT_EXPIRATION: 86400000
     ports:
-      - "8080:8080"  # Expose port 8080 for accessing the Spring Boot app
+      - "8000:8000"
     depends_on:
-      - mysql_db  # Ensure MySQL starts before the Spring Boot application
+      mysql_db:
+        condition: service_healthy
     networks:
       - mysql_network
 
