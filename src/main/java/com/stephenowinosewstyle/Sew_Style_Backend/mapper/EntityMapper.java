@@ -4,23 +4,22 @@ import com.stephenowinosewstyle.Sew_Style_Backend.dto.*;
 import com.stephenowinosewstyle.Sew_Style_Backend.entity.*;
 import org.springframework.stereotype.Component;
 
+
 @Component
 public class EntityMapper {
 
-        // ===== USER MAPPING =====
         public UserDTO userToUserDTO(User user) {
                 if (user == null) return null;
 
                 UserDTO dto = new UserDTO();
                 dto.setId(user.getId());
-                dto.setFirstName(user.getFirstName());  // Matches DTO
-                dto.setLastName(user.getLastName());    // Matches DTO
+                dto.setFirstName(user.getFirstName());
+                dto.setLastName(user.getLastName());
                 dto.setEmail(user.getEmail());
                 dto.setRole(user.getRole());
-                dto.setActive(user.isActive());   // Use `isActive()` not `getIsActive()`
+                dto.setActive(user.isEnabled()); // Map isEnabled to isActive
                 return dto;
         }
-
 
         public User userDTOToUser(UserDTO dto) {
                 if (dto == null) return null;
@@ -30,20 +29,20 @@ public class EntityMapper {
                 user.setFirstName(dto.getFirstName());
                 user.setLastName(dto.getLastName());
                 user.setEmail(dto.getEmail());
-                user.setActive(dto.isActive());
                 user.setRole(dto.getRole());
+                user.setEnabled(dto.isActive()); // Map isActive to isEnabled
                 return user;
         }
 
-
-        // ===== TAILOR MAPPING =====
         public TailorDTO tailorToTailorDTO(Tailor tailor) {
                 if (tailor == null) return null;
 
                 TailorDTO dto = new TailorDTO();
                 dto.setId(tailor.getId());
+                dto.setUser(userToUserDTO(tailor.getUser()));
                 dto.setBio(tailor.getBio());
-                dto.setUser(userToUserDTO(tailor.getUser()));  // nested mapping
+                dto.setSpecialization(tailor.getSpecialization());
+                dto.setExperienceYears(tailor.getExperienceYears());
                 return dto;
         }
 
@@ -52,10 +51,14 @@ public class EntityMapper {
 
                 Tailor tailor = new Tailor();
                 tailor.setId(dto.getId());
+                tailor.setUser(userDTOToUser(dto.getUser()));
                 tailor.setBio(dto.getBio());
-                tailor.setUser(userDTOToUser(dto.getUser()));  // nested mapping
+                tailor.setSpecialization(dto.getSpecialization());
+                tailor.setExperienceYears(dto.getExperienceYears());
                 return tailor;
         }
+
+
 
         // ===== IMAGE MAPPING =====
         public ImageDTO imageToImageDTO(Image image) {

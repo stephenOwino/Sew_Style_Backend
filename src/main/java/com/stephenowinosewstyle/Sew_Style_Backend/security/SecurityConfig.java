@@ -10,6 +10,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -24,18 +25,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class SecurityConfig implements WebMvcConfigurer {
 
         @Autowired
-        private UserDetailsService userDetailsService; // Your custom UserDetailsService
+        private UserDetailsService userDetailsService;
 
         @Autowired
-        private JwtRequestFilter jwtRequestFilter; // JWT filter for token validation
+        private JwtRequestFilter jwtRequestFilter;
 
-        // PasswordEncoder Bean
         @Bean
         public PasswordEncoder passwordEncoder() {
-                return new BCryptPasswordEncoder(12); // Strong encryption with strength 12
+                return new BCryptPasswordEncoder(12); // Strength 12 is good for security/performance balance
         }
 
-        // AuthenticationProvider Bean
         @Bean
         public AuthenticationProvider authenticationProvider() {
                 DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -44,43 +43,34 @@ public class SecurityConfig implements WebMvcConfigurer {
                 return provider;
         }
 
-        // AuthenticationManager Bean
         @Bean
         public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
                 return config.getAuthenticationManager();
         }
 
-        // SecurityFilterChain Bean
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 return http
-                        .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless REST API
-                        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless for JWT
+                        .csrf(AbstractHttpConfigurer::disable) // Stateless API, CSRF not needed
+                        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                         .authorizeHttpRequests(auth -> auth
-                                // Public endpoints
                                 .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
-                                // Admin-only endpoints
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                                // Tailor-only endpoints
                                 .requestMatchers("/api/tailor/**").hasRole("TAILOR")
-                                // User-accessible endpoints (e.g., viewing galleries)
                                 .requestMatchers("/api/gallery/**").hasAnyRole("USER", "TAILOR", "ADMIN")
-                                // All other endpoints require authentication
                                 .anyRequest().authenticated()
                         )
-                        .authenticationProvider(authenticationProvider()) // Use custom provider
-                        .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class) // Add JWT filter
+                        .authenticationProvider(authenticationProvider())
+                        .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
                         .build();
         }
 
-        // CORS Configuration for frontend (React)
         @Override
         public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:3000") // Adjust for your React frontend URL
+                        .allowedOrigins("http://localhost:3000") // Adjust as needed
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
         }
 }
-

@@ -4,10 +4,11 @@ on:
   push:
     branches:
       - main
-      - sew-ba
+      - kev
   pull_request:
     branches:
       - main
+      - kev
 
 jobs:
   build:

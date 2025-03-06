@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "user")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -38,12 +39,14 @@ public class User {
         public User(String john, String doe, String mail, String password123, Role role, byte[] bytes, boolean b) {
         }
 
-        // Add this getter method for isActive
-        public boolean isEnabled() {
-                return isActive;
-        }
+        @Column(name = "is_enabled", nullable = false) // Map to is_enabled
+        private boolean isEnabled = true;
 
 
 
 
 }
+
+
+
+

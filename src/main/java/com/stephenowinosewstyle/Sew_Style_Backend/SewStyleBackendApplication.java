@@ -5,8 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 
-@SpringBootApplication
-@EntityScan( basePackages = {"com.stephenowinosewstyle.Sew_Style_Backend.entity"} )
+@SpringBootApplication(scanBasePackages = "com.stephenowinosewstyle.Sew_Style_Backend")
 public class SewStyleBackendApplication {
 
 	public static void main(String[] args) {
