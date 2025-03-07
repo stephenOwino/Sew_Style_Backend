@@ -51,4 +51,10 @@ public class TailorService {
                         .orElseThrow(() -> new RuntimeException("Tailor not found with id: " + id));
                 return entityMapper.tailorToTailorDTO(tailor);
         }
+
+        public TailorDTO getTailorByUserId(Long userId) {
+                Tailor tailor = tailorRepository.findByUserId(userId)
+                        .orElseThrow(() -> new RuntimeException("Tailor not found for user id: " + userId));
+                return entityMapper.tailorToTailorDTO(tailor);
+        }
 }

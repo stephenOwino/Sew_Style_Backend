@@ -32,4 +32,18 @@ public class TailorController {
                         return ResponseEntity.notFound().build();
                 }
         }
+
+        @GetMapping("/by-user/{userId}")
+        public ResponseEntity<TailorDTO> getTailorByUserId(@PathVariable Long userId) {
+                try {
+                        TailorDTO tailor = tailorService.getTailorByUserId(userId);
+                        return ResponseEntity.ok(tailor);
+                } catch (RuntimeException e) {
+                        // Return 404 for "not found" instead of 500
+                        return ResponseEntity.status(404).body(new TailorDTO(null, null, null, e.getMessage(), 0));
+                } catch (Exception e) {
+                        // Catch unexpected errors as 500 with message
+                        return ResponseEntity.status(500).body(new TailorDTO(null, null, null, "Server error: " + e.getMessage(), 0));
+                }
+        }
 }

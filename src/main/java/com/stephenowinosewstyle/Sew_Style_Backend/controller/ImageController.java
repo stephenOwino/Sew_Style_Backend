@@ -21,56 +21,40 @@ public class ImageController {
         @Autowired
         private ImagesService imageService;
 
-        @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
+        @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
         public ResponseEntity<ImageDTO> createImage(
-                @RequestParam(value = "image", required = false) MultipartFile imageFile,
-                @RequestParam(value = "galleryId", required = false) Long galleryId,
-                @RequestBody(required = false) ImageDTO imageDTO) {
+                @RequestParam("image") MultipartFile imageFile,
+                @RequestParam("galleryId") Long galleryId) {
                 try {
-                        ImageDTO newImageDTO;
-
-                        // File upload path
-                        if (imageFile != null && galleryId != null) {
-                                if (imageFile.isEmpty()) {
-                                        return ResponseEntity.badRequest().body(new ImageDTO(null, "No file uploaded", 0, null, null));
-                                }
-                                String originalFilename = imageFile.getOriginalFilename();
-                                if (originalFilename == null || !originalFilename.matches(".*\\.(jpg|jpeg|png)")) {
-                                        return ResponseEntity.badRequest().body(new ImageDTO(null, "Only JPG/JPEG/PNG allowed", 0, null, null));
-                                }
-                                if (imageFile.getSize() > 5 * 1024 * 1024) {
-                                        return ResponseEntity.badRequest().body(new ImageDTO(null, "File exceeds 5MB limit", 0, null, null));
-                                }
-
-                                String uploadDir = "uploads/";
-                                Path uploadPath = Paths.get(uploadDir);
-                                if (!Files.exists(uploadPath)) {
-                                        Files.createDirectories(uploadPath);
-                                }
-                                String fileName = UUID.randomUUID() + "_" + originalFilename;
-                                Path filePath = uploadPath.resolve(fileName);
-                                Files.write(filePath, imageFile.getBytes());
-
-                                newImageDTO = new ImageDTO();
-                                newImageDTO.setImageUrl(filePath.toString());
-                                newImageDTO.setLikeCount(0);
-                                newImageDTO.setGalleryId(galleryId);
+                        // Validate file
+                        if (imageFile.isEmpty()) {
+                                return ResponseEntity.badRequest().body(new ImageDTO(null, "No file uploaded", 0, null, null));
                         }
-                        // URL path
-                        else if (imageDTO != null && imageDTO.getImageUrl() != null && imageDTO.getGalleryId() != null) {
-                                // Basic URL validation (allow any HTTP/HTTPS URL)
-                                if (!imageDTO.getImageUrl().matches("https?://.*")) {
-                                        return ResponseEntity.badRequest().body(new ImageDTO(null, "Invalid URL (must start with http:// or https://)", 0, null, null));
-                                }
-
-                                newImageDTO = new ImageDTO();
-                                newImageDTO.setImageUrl(imageDTO.getImageUrl());
-                                newImageDTO.setLikeCount(0);
-                                newImageDTO.setGalleryId(imageDTO.getGalleryId());
-                        } else {
-                                return ResponseEntity.badRequest().body(new ImageDTO(null, "Must provide either image file with galleryId or imageUrl with galleryId", 0, null, null));
+                        String originalFilename = imageFile.getOriginalFilename();
+                        if (originalFilename == null || !originalFilename.matches(".*\\.(jpg|jpeg|png)")) {
+                                return ResponseEntity.badRequest().body(new ImageDTO(null, "Only JPG/JPEG/PNG allowed", 0, null, null));
+                        }
+                        if (imageFile.getSize() > 5 * 1024 * 1024) {
+                                return ResponseEntity.badRequest().body(new ImageDTO(null, "File exceeds 5MB limit", 0, null, null));
                         }
 
+                        // Save file
+                        String uploadDir = "uploads/";
+                        Path uploadPath = Paths.get(uploadDir);
+                        if (!Files.exists(uploadPath)) {
+                                Files.createDirectories(uploadPath);
+                        }
+                        String fileName = UUID.randomUUID() + "_" + originalFilename;
+                        Path filePath = uploadPath.resolve(fileName);
+                        Files.write(filePath, imageFile.getBytes());
+
+                        // Prepare DTO
+                        ImageDTO newImageDTO = new ImageDTO();
+                        newImageDTO.setImageUrl("/uploads/" + fileName); // Relative URL for static serving
+                        newImageDTO.setLikeCount(0);
+                        newImageDTO.setGalleryId(galleryId);
+
+                        // Save to DB via service
                         ImageDTO createdImage = imageService.createImage(newImageDTO);
                         return ResponseEntity.ok(createdImage);
                 } catch (IOException e) {
