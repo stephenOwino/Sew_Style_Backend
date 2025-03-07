@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class GalleryService {
 
@@ -39,5 +42,12 @@ public class GalleryService {
                 Gallery gallery = galleryRepository.findById(id)
                         .orElseThrow(() -> new IllegalArgumentException("Gallery not found with id: " + id));
                 return entityMapper.galleryToGalleryDTO(gallery);
+        }
+
+        public List<GalleryDTO> getAllGalleries() {
+                List<Gallery> galleries = galleryRepository.findAll();
+                return galleries.stream()
+                        .map(entityMapper::galleryToGalleryDTO)
+                        .collect(Collectors.toList());
         }
 }

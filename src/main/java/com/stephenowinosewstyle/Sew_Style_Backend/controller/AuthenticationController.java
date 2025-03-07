@@ -35,42 +35,44 @@ public class AuthenticationController {
         @Autowired
         private PasswordEncoder passwordEncoder;
 
+
+        // ... (autowired fields unchanged)
+
+        // ... (imports unchanged)
         @PostMapping("/register")
         public ResponseEntity<AuthenticationResponse> register(@RequestBody RegistrationRequest request) {
-                // Check if email already exists
                 if (userRepository.findByEmail(request.email()).isPresent()) {
                         return ResponseEntity.badRequest().body(new AuthenticationResponse("Email already in use"));
                 }
 
-                // Create new user
                 User user = new User();
                 user.setFirstName(request.firstName());
                 user.setLastName(request.lastName());
                 user.setEmail(request.email());
                 user.setPassword(passwordEncoder.encode(request.password()));
-                user.setRole(Role.valueOf(request.role().toUpperCase())); // Convert string to Role enum
+                Role role = Role.valueOf(request.role().toUpperCase());
+                user.setRole(role);
                 user.setEnabled(true);
 
-                userRepository.save(user);
+                User savedUser = userRepository.save(user); // Save to get ID
 
-                // Generate JWT
                 UserDetails userDetails = userDetailsService.loadUserByUsername(request.email());
                 String token = jwtService.generateToken(userDetails);
 
-                return ResponseEntity.ok(new AuthenticationResponse(token));
+                return ResponseEntity.ok(new AuthenticationResponse(token, request.firstName(), role.name(), savedUser.getId()));
         }
 
         @PostMapping("/login")
         public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest request) {
-                // Authenticate user
                 authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(request.email(), request.password())
                 );
 
-                // Generate JWT
                 UserDetails userDetails = userDetailsService.loadUserByUsername(request.email());
                 String token = jwtService.generateToken(userDetails);
+                User user = userRepository.findByEmail(request.email())
+                        .orElseThrow(() -> new RuntimeException("User not found"));
 
-                return ResponseEntity.ok(new AuthenticationResponse(token));
+                return ResponseEntity.ok(new AuthenticationResponse(token, user.getFirstName(), user.getRole().name(), user.getId()));
         }
 }

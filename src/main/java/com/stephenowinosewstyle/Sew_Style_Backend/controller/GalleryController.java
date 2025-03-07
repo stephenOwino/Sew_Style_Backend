@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/galleries")
 public class GalleryController {
@@ -33,6 +35,16 @@ public class GalleryController {
                         return ResponseEntity.ok(gallery);
                 } catch (IllegalArgumentException e) {
                         return ResponseEntity.notFound().build();
+                } catch (Exception e) {
+                        return ResponseEntity.status(500).body(null);
+                }
+        }
+
+        @GetMapping
+        public ResponseEntity<List<GalleryDTO>> getAllGalleries() {
+                try {
+                        List<GalleryDTO> galleries = galleryService.getAllGalleries();
+                        return ResponseEntity.ok(galleries);
                 } catch (Exception e) {
                         return ResponseEntity.status(500).body(null);
                 }
