@@ -31,6 +31,9 @@ public class Gallery {
         @Column(columnDefinition = "TEXT")
         private String description;
 
+        @Column(nullable = false) // New field for skill
+        private String skill;
+
         @CreationTimestamp
         @Column(name = "created_at", updatable = false)
         private LocalDateTime createdAt;

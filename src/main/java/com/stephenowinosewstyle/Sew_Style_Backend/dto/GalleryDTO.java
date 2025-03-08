@@ -15,9 +15,9 @@ public class GalleryDTO {
         private Long tailorId;
         private String title;
         private String description;
-        private Long userId; 
+        private String skill; // New field
+        private Long userId;
         private LocalDateTime createdAt;
         private List<ImageDTO> images;
 }
-
 

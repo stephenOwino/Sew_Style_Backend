@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 @Service
 public class GalleryService {
 
+        private static final int MAX_GALLERIES_PER_TAILOR = 10; // New: Define limit
+
         @Autowired
         private GalleryRepository galleryRepository;
 
@@ -27,11 +29,23 @@ public class GalleryService {
 
         @Transactional
         public GalleryDTO createGallery(GalleryDTO galleryDTO) {
-                if (galleryDTO.getTailorId() == null || galleryDTO.getTitle() == null || galleryDTO.getTitle().trim().isEmpty()) {
-                        throw new IllegalArgumentException("Tailor ID and title are required");
+                // Updated validation: Add skill as required
+                if (galleryDTO.getTailorId() == null || galleryDTO.getTitle() == null || galleryDTO.getTitle().trim().isEmpty() ||
+                        galleryDTO.getSkill() == null || galleryDTO.getSkill().trim().isEmpty()) {
+                        throw new IllegalArgumentException("Tailor ID, title, and skill are required");
                 }
+
+                // Fetch tailor
                 Tailor tailor = tailorRepository.findById(galleryDTO.getTailorId())
                         .orElseThrow(() -> new IllegalArgumentException("Tailor not found with id: " + galleryDTO.getTailorId()));
+
+                // New: Check gallery limit
+                long galleryCount = galleryRepository.countByTailorId(galleryDTO.getTailorId());
+                if (galleryCount >= MAX_GALLERIES_PER_TAILOR) {
+                        throw new IllegalArgumentException("Maximum galleries reached (" + MAX_GALLERIES_PER_TAILOR + ") for tailor ID: " + galleryDTO.getTailorId());
+                }
+
+                // Map and save gallery
                 Gallery gallery = entityMapper.galleryDTOToGallery(galleryDTO);
                 gallery.setTailor(tailor);
                 Gallery savedGallery = galleryRepository.save(gallery);

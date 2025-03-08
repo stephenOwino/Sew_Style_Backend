@@ -4,6 +4,7 @@ import com.stephenowinosewstyle.Sew_Style_Backend.dto.GalleryDTO;
 import com.stephenowinosewstyle.Sew_Style_Backend.service.GalleryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,9 +23,15 @@ public class GalleryController {
                         GalleryDTO createdGallery = galleryService.createGallery(galleryDTO);
                         return ResponseEntity.ok(createdGallery);
                 } catch (IllegalArgumentException e) {
-                        return ResponseEntity.badRequest().body(null);
+                        // Updated: Return the exception message in the DTO
+                        GalleryDTO errorDTO = new GalleryDTO();
+                        errorDTO.setTailorId(galleryDTO.getTailorId());
+                        errorDTO.setDescription(e.getMessage()); // e.g., "Maximum galleries reached (5)..."
+                        return ResponseEntity.badRequest().body(errorDTO);
                 } catch (Exception e) {
-                        return ResponseEntity.status(500).body(null);
+                        GalleryDTO errorDTO = new GalleryDTO();
+                        errorDTO.setDescription("Server error: " + e.getMessage());
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
                 }
         }
 
@@ -36,7 +43,7 @@ public class GalleryController {
                 } catch (IllegalArgumentException e) {
                         return ResponseEntity.notFound().build();
                 } catch (Exception e) {
-                        return ResponseEntity.status(500).body(null);
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
                 }
         }
 
@@ -46,9 +53,7 @@ public class GalleryController {
                         List<GalleryDTO> galleries = galleryService.getAllGalleries();
                         return ResponseEntity.ok(galleries);
                 } catch (Exception e) {
-                        return ResponseEntity.status(500).body(null);
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
                 }
         }
-
-
 }

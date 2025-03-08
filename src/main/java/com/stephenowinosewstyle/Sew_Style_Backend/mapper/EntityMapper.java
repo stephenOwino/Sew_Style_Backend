@@ -93,6 +93,7 @@ public class EntityMapper {
                 dto.setTailorId(gallery.getTailor() != null ? gallery.getTailor().getId() : null);
                 dto.setTitle(gallery.getTitle());
                 dto.setDescription(gallery.getDescription());
+                dto.setSkill(gallery.getSkill()); // New mapping
                 dto.setUserId(gallery.getTailor().getUser().getId());
                 dto.setCreatedAt(gallery.getCreatedAt());
                 if (gallery.getImages() != null) {
@@ -107,6 +108,7 @@ public class EntityMapper {
                 gallery.setId(dto.getId());
                 gallery.setTitle(dto.getTitle());
                 gallery.setDescription(dto.getDescription());
+                gallery.setSkill(dto.getSkill()); // New mapping
                 if (dto.getImages() != null) {
                         gallery.setImages(dto.getImages().stream().map(this::imageDTOToImage).toList());
                 }
